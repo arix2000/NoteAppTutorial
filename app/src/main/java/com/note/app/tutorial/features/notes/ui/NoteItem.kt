@@ -1,6 +1,8 @@
 package com.note.app.tutorial.features.notes.ui
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -8,10 +10,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,17 +30,20 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.note.app.tutorial.ui.theme.NoteAppTutorialTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun NoteItem(note: Note, navController: NavController) {
+    var isDeleteDialogShowed by remember { mutableStateOf(false) }
     Card(
-        onClick = {
-            navController.navigate("/AddEditScreen/" + note.id)
-        },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF2B2B2B)),
         modifier = Modifier
             .fillMaxWidth()
             .padding(5.dp)
+            .combinedClickable(onClick = {
+                navController.navigate("/AddEditScreen/" + note.id)
+            }, onLongClick = {
+                isDeleteDialogShowed = true
+            })
     ) {
         Column(
             modifier = Modifier
@@ -66,6 +74,8 @@ fun NoteItem(note: Note, navController: NavController) {
             }
         }
     }
+    if (isDeleteDialogShowed)
+        DeleteDialog(onDismiss = { isDeleteDialogShowed = false }, onConfirmation = {})
 }
 
 @Preview
