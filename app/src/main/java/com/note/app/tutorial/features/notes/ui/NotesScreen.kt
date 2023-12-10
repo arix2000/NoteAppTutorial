@@ -107,6 +107,16 @@ fun NotesScreenPreview() {
     }
 }
 
+@Preview
+@Composable
+fun NotesScreenEmptyPreview() {
+    NoteAppTutorialTheme(darkTheme = true) {
+        Surface {
+            NotesEmptyScreen()
+        }
+    }
+}
+
 data class Note(val title: String, val content: String, val tag: NoteTag?, val id: Int = 0)
 
 data class NoteTag(val name: String, val color: Color)
