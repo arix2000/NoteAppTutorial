@@ -5,4 +5,6 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { AppDatabase.getDatabase(get()) }
+
+    factory { get<AppDatabase>().noteDao() }
 }

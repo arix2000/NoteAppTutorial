@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,15 +29,32 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.note.app.tutorial.core.database.entities.Note
+import com.note.app.tutorial.core.database.entities.NoteTag
+import com.note.app.tutorial.features.notes.NoteEvent
+import com.note.app.tutorial.features.notes.NoteViewModel
 import com.note.app.tutorial.ui.theme.NoteAppTutorialTheme
+import org.koin.compose.koinInject
 
 @Composable
-fun NotesScreen(navController: NavHostController) {
+fun NotesScreen(navController: NavHostController, viewModel: NoteViewModel = koinInject()) {
+    LaunchedEffect(key1 = true) {
+        viewModel.invokeEvent(NoteEvent.GetAllNotesEvent)
+    }
+    NotesScreenContent(viewModel.state.value.notes, { viewModel.invokeEvent(it) }, navController)
+}
+
+@Composable
+private fun NotesScreenContent(
+    notes: List<Note>,
+    invokeEvent: (NoteEvent) -> Unit,
+    navController: NavHostController
+) {
     Box {
-        if (exampleNotes.isEmpty())
+        if (notes.isEmpty())
             NotesEmptyScreen()
         else
-            NotesListScreen(exampleNotes, navController)
+            NotesListScreen(notes, navController, invokeEvent)
         FloatingActionButton(
             onClick = { navController.navigate("/AddEditScreen/null") },
             modifier = Modifier
@@ -49,7 +67,11 @@ fun NotesScreen(navController: NavHostController) {
 }
 
 @Composable
-fun NotesListScreen(notes: List<Note>, navController: NavController) {
+fun NotesListScreen(
+    notes: List<Note>,
+    navController: NavController,
+    invokeEvent: (NoteEvent) -> Unit
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -57,7 +79,7 @@ fun NotesListScreen(notes: List<Note>, navController: NavController) {
     ) {
         LazyColumn {
             items(notes) {
-                NoteItem(it, navController)
+                NoteItem(it, navController, invokeEvent)
             }
         }
     }
@@ -91,18 +113,42 @@ private fun NotesEmptyScreen() {
                     color = Color.LightGray
                 )
             )
-
         }
-
     }
 }
 
 @Preview
 @Composable
 fun NotesScreenPreview() {
+    val exampleNotes = listOf(
+        Note(
+            0,
+            "Piewsza super notatka",
+            LoremIpsum(8).values.joinToString(),
+            NoteTag("Praca", Color.Blue)
+        ),
+        Note(
+            1,
+            "Druga krótka",
+            LoremIpsum(1).values.joinToString(),
+            NoteTag("Zabawa", Color.Red)
+        ),
+        Note(
+            2,
+            "Trzecia super duper długa notatka o tym jak chrystus jezus zbawił świat",
+            LoremIpsum(100).values.joinToString(),
+            NoteTag("Nauka", Color.Green)
+        ),
+        Note(
+            3,
+            "Czwarta super notatka bez tagu",
+            LoremIpsum(20).values.joinToString(),
+            NoteTag("none", Color.Transparent)
+        )
+    )
     NoteAppTutorialTheme(darkTheme = true) {
         Surface {
-            NotesScreen(navController = rememberNavController())
+            NotesScreenContent(exampleNotes, {  }, rememberNavController())
         }
     }
 }
@@ -116,30 +162,3 @@ fun NotesScreenEmptyPreview() {
         }
     }
 }
-
-data class Note(val title: String, val content: String, val tag: NoteTag?, val id: Int = 0)
-
-data class NoteTag(val name: String, val color: Color)
-
-val exampleNotes = listOf(
-    Note(
-        "Piewsza super notatka",
-        LoremIpsum(8).values.joinToString(),
-        NoteTag("Praca", Color.Blue)
-    ),
-    Note(
-        "Druga krótka",
-        LoremIpsum(1).values.joinToString(),
-        NoteTag("Zabawa", Color.Red)
-    ),
-    Note(
-        "Trzecia super duper długa notatka o tym jak chrystus jezus zbawił świat",
-        LoremIpsum(100).values.joinToString(),
-        NoteTag("Nauka", Color.Green)
-    ),
-    Note(
-        "Czwarta super notatka bez tagu",
-        LoremIpsum(20).values.joinToString(),
-        null
-    )
-)

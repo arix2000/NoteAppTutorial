@@ -28,11 +28,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.note.app.tutorial.core.database.entities.Note
+import com.note.app.tutorial.core.database.entities.NoteTag
+import com.note.app.tutorial.features.notes.NoteEvent
 import com.note.app.tutorial.ui.theme.NoteAppTutorialTheme
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun NoteItem(note: Note, navController: NavController) {
+fun NoteItem(note: Note, navController: NavController, invokeEvent: (NoteEvent) -> Unit) {
     var isDeleteDialogShowed by remember { mutableStateOf(false) }
     Card(
         colors = CardDefaults.cardColors(containerColor = Color(0xFF2B2B2B)),
@@ -62,7 +65,7 @@ fun NoteItem(note: Note, navController: NavController) {
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            if (note.tag != null) {
+            if (note.tag != NoteTag("none", Color.Transparent)) {
                 Box(
                     Modifier
                         .background(note.tag.color.copy(alpha = 0.3f), shape = CircleShape)
@@ -75,7 +78,9 @@ fun NoteItem(note: Note, navController: NavController) {
         }
     }
     if (isDeleteDialogShowed)
-        DeleteDialog(onDismiss = { isDeleteDialogShowed = false }, onConfirmation = {})
+        DeleteDialog(
+            onDismiss = { isDeleteDialogShowed = false },
+            onConfirmation = { invokeEvent(NoteEvent.DeleteNoteEvent(note)) })
 }
 
 @Preview
@@ -84,9 +89,11 @@ fun NoteItemPrev() {
     NoteAppTutorialTheme(darkTheme = true) {
         Surface {
             Column {
-                exampleNotes.forEach {
-                    NoteItem(note = it, rememberNavController())
-                }
+                NoteItem(
+                    note = Note(0, "STRING", "STRING content", NoteTag("Praca", Color.Blue)),
+                    navController = rememberNavController(),
+                    invokeEvent = { }
+                )
             }
         }
     }
