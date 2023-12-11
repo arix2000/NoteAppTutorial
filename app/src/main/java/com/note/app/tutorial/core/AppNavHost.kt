@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.note.app.tutorial.features.addEditNote.ui.AddEditNoteScreen
+import com.note.app.tutorial.features.notes.ui.AddEditNoteScreen
 import com.note.app.tutorial.features.notes.ui.NotesScreen
 
 @Composable
